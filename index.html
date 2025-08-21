@@ -65,7 +65,7 @@ const colors = ["#ff5656","#111","#ff5656","#111","#ff5656","#111"];
 let startAngle = 0;
 const arc = (2 * Math.PI) / rewards.length;
 
-const PLAY_KEY = "wheelPlayed_sansushi_final";
+const PLAY_KEY = "wheelPlayed_sansushi_final2";
 if (localStorage.getItem(PLAY_KEY) === "true") {
   spinBtn.disabled = true;
   spinBtn.innerText = "Vous avez déjà joué 🎉";
@@ -101,9 +101,11 @@ function drawRouletteWheel() {
 }
 
 function spinWheel() {
+  // 1️⃣ Choisir le cadeau gagnant
   const rewardIndex = Math.floor(Math.random() * rewards.length);
-  const fullTurns = 6; // tours complets
-  // Décalage -arc/2 et -PI/2 pour centrer sur le segment et flèche en haut
+
+  // 2️⃣ Calculer l'angle pour que la flèche tombe exactement sur ce segment
+  const fullTurns = 6;
   const targetAngle = fullTurns * 2 * Math.PI + rewardIndex * arc - arc/2 - Math.PI/2;
 
   const initialAngle = startAngle;
@@ -120,9 +122,9 @@ function spinWheel() {
     if (frame < totalFrames) {
       requestAnimationFrame(animate);
     } else {
-      startAngle = targetAngle % (2*Math.PI); // forcer alignement exact
+      startAngle = targetAngle % (2*Math.PI);
       drawRouletteWheel();
-      // ✅ Utiliser rewardIndex choisi pour afficher le cadeau
+      // 3️⃣ Afficher exactement le cadeau choisi
       result.innerText = `🎉 Félicitations ! Vous avez gagné : ${rewards[rewardIndex]}`;
       localStorage.setItem(PLAY_KEY, "true");
       spinBtn.disabled = true;
