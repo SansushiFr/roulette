@@ -117,8 +117,7 @@ function rotateWheel() {
     if (totalAngle < 0) totalAngle += 2 * Math.PI;
 
     // Calcul correct de l'index
-    const index = Math.floor(rewards.length - (totalAngle / arc)) % rewards.length;
-    const rewardIndex = (index + rewards.length) % rewards.length; // garantie positif
+    const rewardIndex = Math.floor(totalAngle / arc) % rewards.length;
 
     result.innerText = `🎉 Félicitations ! Vous avez gagné : ${rewards[rewardIndex]}`;
 
