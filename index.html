@@ -103,6 +103,7 @@ function drawRouletteWheel() {
 function spinWheel() {
   const rewardIndex = Math.floor(Math.random() * rewards.length);
   const fullTurns = 6; // tours complets
+  // Décalage -arc/2 et -PI/2 pour centrer sur le segment et flèche en haut
   const targetAngle = fullTurns * 2 * Math.PI + rewardIndex * arc - arc/2 - Math.PI/2;
 
   const initialAngle = startAngle;
@@ -119,8 +120,9 @@ function spinWheel() {
     if (frame < totalFrames) {
       requestAnimationFrame(animate);
     } else {
-      startAngle = targetAngle % (2*Math.PI); // ⚡ forcer l'alignement exact
+      startAngle = targetAngle % (2*Math.PI); // forcer alignement exact
       drawRouletteWheel();
+      // ✅ Utiliser rewardIndex choisi pour afficher le cadeau
       result.innerText = `🎉 Félicitations ! Vous avez gagné : ${rewards[rewardIndex]}`;
       localStorage.setItem(PLAY_KEY, "true");
       spinBtn.disabled = true;
