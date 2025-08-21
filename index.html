@@ -64,10 +64,8 @@ const colors = ["#ff5656","#111","#ff5656","#111","#ff5656","#111"];
 
 let startAngle = 0;
 const arc = (2 * Math.PI) / rewards.length;
-let spinAngle = 0;
-let spinTimeout = null;
 
-const PLAY_KEY = "wheelPlayed_sansushi_v3";
+const PLAY_KEY = "wheelPlayed_sansushi_v4";
 if (localStorage.getItem(PLAY_KEY) === "true") {
   spinBtn.disabled = true;
   spinBtn.innerText = "Vous avez déjà joué 🎉";
@@ -102,31 +100,41 @@ function drawRouletteWheel() {
   }
 }
 
-function rotateWheel() {
-  spinAngle *= 0.97;
-  if (spinAngle > 0.2) {
-    startAngle += (spinAngle * Math.PI) / 180;
+// Fonction de rotation avec décélération progressive
+function spinWheel() {
+  // Choisir un index gagnant aléatoire
+  const rewardIndex = Math.floor(Math.random() * rewards.length);
+
+  // Nombre de tours complets avant de s'arrêter (plus = plus long)
+  const fullTurns = 5;
+
+  // Angle final exact centré sur le segment gagnant
+  const finalAngle = fullTurns * 2 * Math.PI + rewardIndex * arc + arc/2;
+
+  let currentAngle = startAngle;
+  let frames = 120; // nombre de frames pour l'animation
+  let frameCount = 0;
+
+  function animate() {
+    frameCount++;
+    // Décélération progressive (ease out)
+    const t = frameCount / frames;
+    const easeOut = 1 - Math.pow(1 - t, 3); // fonction cubic ease out
+    startAngle = currentAngle + (finalAngle - currentAngle) * easeOut;
     drawRouletteWheel();
-    spinTimeout = requestAnimationFrame(rotateWheel);
-  } else {
-    cancelAnimationFrame(spinTimeout);
 
-    // Calcul exact pour que la flèche corresponde à la récompense
-    let totalAngle = startAngle % (2 * Math.PI);
-    if (totalAngle < 0) totalAngle += 2 * Math.PI;
-
-    // Ajustement pour que la flèche en haut corresponde à l’arc exact
-    let adjustedAngle = (totalAngle + Math.PI/2) % (2 * Math.PI);
-    if (adjustedAngle < 0) adjustedAngle += 2 * Math.PI;
-
-    const rewardIndex = Math.floor(adjustedAngle / arc);
-
-    result.innerText = `🎉 Félicitations ! Vous avez gagné : ${rewards[rewardIndex]}`;
-
-    localStorage.setItem(PLAY_KEY, "true");
-    spinBtn.disabled = true;
-    spinBtn.innerText = "Vous avez déjà joué 🎉";
+    if (frameCount < frames) {
+      requestAnimationFrame(animate);
+    } else {
+      // Afficher le résultat
+      result.innerText = `🎉 Félicitations ! Vous avez gagné : ${rewards[rewardIndex]}`;
+      localStorage.setItem(PLAY_KEY, "true");
+      spinBtn.disabled = true;
+      spinBtn.innerText = "Vous avez déjà joué 🎉";
+    }
   }
+
+  animate();
 }
 
 spinBtn.addEventListener("click", () => {
@@ -134,8 +142,7 @@ spinBtn.addEventListener("click", () => {
     result.innerText = "⚠️ Vous avez déjà joué !";
     return;
   }
-  spinAngle = Math.random() * 3000 + 2000; // vitesse aléatoire
-  rotateWheel();
+  spinWheel();
 });
 
 drawRouletteWheel();
