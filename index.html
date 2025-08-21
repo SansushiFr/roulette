@@ -111,13 +111,12 @@ function rotateWheel() {
   } else {
     cancelAnimationFrame(spinTimeout);
 
-    // 🎯 Calcul exact pour correspondre à la flèche
-    const pointerAngle = -Math.PI / 2; // flèche en haut
-    let totalAngle = (startAngle + pointerAngle) % (2 * Math.PI);
+    // 🎯 Calcul exact pour que la flèche corresponde à la récompense
+    let totalAngle = startAngle % (2 * Math.PI);
     if (totalAngle < 0) totalAngle += 2 * Math.PI;
 
-    // Calcul correct de l'index
-    const rewardIndex = Math.floor(totalAngle / arc) % rewards.length;
+    // Flèche en haut (-90°), calcul de l'index exact
+    const rewardIndex = Math.floor(((2 * Math.PI - totalAngle + arc/2) % (2 * Math.PI)) / arc);
 
     result.innerText = `🎉 Félicitations ! Vous avez gagné : ${rewards[rewardIndex]}`;
 
