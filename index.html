@@ -1,145 +1,140 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sansushi France 🍣 - Roulette</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #000;
-      color: #fff;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-    }
-    h1 { margin-top: 20px; color: #ff5656; }
-    p.subtitle { font-size: 18px; margin-bottom: 20px; color: #fff; }
-    #wheelCanvas { margin-top: 0; border-radius: 50%; }
-    #spinBtn {
-      margin-top: 20px; padding: 15px 30px; font-size: 18px;
-      background: #ff5656; color: #fff; border: none; border-radius: 50px;
-      cursor: pointer; transition: 0.3s;
-    }
-    #spinBtn:hover { background: #e04e4e; }
-    #result { margin-top: 25px; font-size: 20px; font-weight: bold; color: #ff5656; }
-
-    .pointer{
-      width:0; height:0;
-      border-left: 20px solid transparent;
-      border-right: 20px solid transparent;
-      border-top: 40px solid #ff5656;
-      margin: 0 auto 14px auto;
-      position: relative; z-index: 10;
-      filter: drop-shadow(0 2px 2px rgba(0,0,0,0.4));
-    }
-
-    .note { margin-top: 40px; font-size: 12px; color: #bbb; }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sansushi France 🍣 - Roulette</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #000;
+  color: #fff;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+h1 { margin-top: 20px; color: #ff5656; }
+p.subtitle { font-size: 18px; margin-bottom: 20px; color: #fff; }
+#wheelCanvas { margin-top: 0; border-radius: 50%; }
+#spinBtn {
+  margin-top: 20px; padding: 15px 30px; font-size: 18px;
+  background: #ff5656; color: #fff; border: none; border-radius: 50px;
+  cursor: pointer; transition: 0.3s;
+}
+#spinBtn:hover { background: #e04e4e; }
+#result { margin-top: 25px; font-size: 20px; font-weight: bold; color: #ff5656; }
+.pointer{
+  width:0; height:0;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  border-top: 40px solid #ff5656;
+  margin: 0 auto 14px auto;
+  position: relative; z-index: 10;
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,0.4));
+}
+.note { margin-top: 40px; font-size: 12px; color: #bbb; }
+</style>
 </head>
 <body>
-  <h1>Sansushi France 🍣</h1>
-  <p class="subtitle">Merci pour votre avis Google ⭐️<br>Tournez la roue et découvrez votre délicieuse récompense 🎁</p>
+<h1>Sansushi France 🍣</h1>
+<p class="subtitle">Merci pour votre avis Google ⭐️<br>Tournez la roue et découvrez votre délicieuse récompense 🎁</p>
 
-  <div class="pointer"></div>
-  <canvas id="wheelCanvas" width="350" height="350"></canvas>
-  <br/>
-  <button id="spinBtn">Tournez la roue 🎁</button>
-  <p id="result"></p>
+<div class="pointer"></div>
+<canvas id="wheelCanvas" width="350" height="350"></canvas>
+<br/>
+<button id="spinBtn">Tournez la roue 🎁</button>
+<p id="result"></p>
+<p class="note">*Sous réserve de nous montrer la preuve de votre avis Google.</p>
 
-  <p class="note">*Sous réserve de nous montrer la preuve de votre avis Google.</p>
+<script>
+const canvas = document.getElementById("wheelCanvas");
+const ctx = canvas.getContext("2d");
+const spinBtn = document.getElementById("spinBtn");
+const result = document.getElementById("result");
 
-  <script>
-    const canvas = document.getElementById("wheelCanvas");
-    const ctx = canvas.getContext("2d");
-    const spinBtn = document.getElementById("spinBtn");
-    const result = document.getElementById("result");
+const rewards = [
+  "🥤 Boisson",
+  "🧋 Bubble Tea",
+  "🍫 Fondant\nau chocolat",
+  "🍰 Tiramisu",
+  "🍗 Nems Poulet",
+  "🍣 Sushis Saumon"
+];
+const colors = ["#ff5656","#111","#ff5656","#111","#ff5656","#111"];
 
-    const rewards = [
-      "🥤 Boisson",
-      "🧋 Bubble Tea",
-      "🍫 Fondant\nau chocolat",
-      "🍰 Tiramisu",
-      "🍗 Nems Poulet",
-      "🍣 Sushis Saumon"
-    ];
-    const colors = ["#ff5656","#111","#ff5656","#111","#ff5656","#111"];
+let startAngle = 0;
+const arc = (2 * Math.PI) / rewards.length;
+let spinAngle = 0;
+let spinTimeout = null;
 
-    let startAngle = 0;
-    const arc = (2 * Math.PI) / rewards.length;
-    let spinAngle = 0;
-    let spinTimeout = null;
+const PLAY_KEY = "wheelPlayed_sansushi_v3";
+if (localStorage.getItem(PLAY_KEY) === "true") {
+  spinBtn.disabled = true;
+  spinBtn.innerText = "Vous avez déjà joué 🎉";
+}
 
-    const PLAY_KEY = "wheelPlayed_sansushi_v2";
-    if (localStorage.getItem(PLAY_KEY) === "true") {
-      spinBtn.disabled = true;
-      spinBtn.innerText = "Vous avez déjà joué 🎉";
-    }
+function drawRouletteWheel() {
+  ctx.clearRect(0, 0, 350, 350);
+  ctx.strokeStyle = "white";
+  ctx.lineWidth = 2;
+  ctx.font = "bold 14px Arial";
 
-    function drawRouletteWheel() {
-      ctx.clearRect(0, 0, 350, 350);
-      ctx.strokeStyle = "white";
-      ctx.lineWidth = 2;
-      ctx.font = "bold 14px Arial";
+  for (let i = 0; i < rewards.length; i++) {
+    const angle = startAngle + i * arc;
+    ctx.fillStyle = colors[i];
 
-      for (let i = 0; i < rewards.length; i++) {
-        const angle = startAngle + i * arc;
-        ctx.fillStyle = colors[i];
+    ctx.beginPath();
+    ctx.arc(175, 175, 175, angle, angle + arc, false);
+    ctx.arc(175, 175, 0, angle + arc, angle, true);
+    ctx.fill();
+    ctx.save();
 
-        ctx.beginPath();
-        ctx.arc(175, 175, 175, angle, angle + arc, false);
-        ctx.arc(175, 175, 0, angle + arc, angle, true);
-        ctx.fill();
-        ctx.save();
+    ctx.fillStyle = "#fff";
+    ctx.translate(
+      175 + Math.cos(angle + arc / 2) * 110,
+      175 + Math.sin(angle + arc / 2) * 110
+    );
+    ctx.rotate(angle + arc / 2);
+    ctx.textAlign = "center";
+    const lines = rewards[i].split("\n");
+    lines.forEach((line, idx) => ctx.fillText(line, 0, idx * 16));
+    ctx.restore();
+  }
+}
 
-        ctx.fillStyle = "#fff";
-        ctx.translate(
-          175 + Math.cos(angle + arc / 2) * 110,
-          175 + Math.sin(angle + arc / 2) * 110
-        );
-        ctx.rotate(angle + arc / 2);
-        ctx.textAlign = "center";
-        const lines = rewards[i].split("\n");
-        lines.forEach((line, idx) => ctx.fillText(line, 0, idx * 16));
-        ctx.restore();
-      }
-    }
-
-    function rotateWheel() {
-      spinAngle *= 0.97;
-      if (spinAngle > 0.2) {
-        startAngle += (spinAngle * Math.PI) / 180;
-        drawRouletteWheel();
-        spinTimeout = requestAnimationFrame(rotateWheel);
-      } else {
-        cancelAnimationFrame(spinTimeout);
-
-        // 🎯 Correction : calcul précis pour la tranche sous la flèche
-        const pointerAngle = -Math.PI / 2; // flèche en haut
-        let normalizedAngle = (startAngle + pointerAngle) % (2 * Math.PI);
-        if (normalizedAngle < 0) normalizedAngle += 2 * Math.PI;
-
-        // Calcul de l’index en inversant le sens pour correspondre au dessin
-        const index = (rewards.length - 1 - Math.floor(normalizedAngle / arc)) % rewards.length;
-
-        result.innerText = `🎉 Félicitations ! Vous avez gagné : ${rewards[index]}`;
-
-        localStorage.setItem(PLAY_KEY, "true");
-        spinBtn.disabled = true;
-        spinBtn.innerText = "Vous avez déjà joué 🎉";
-      }
-    }
-
-    spinBtn.addEventListener("click", () => {
-      if (localStorage.getItem(PLAY_KEY) === "true") {
-        result.innerText = "⚠️ Vous avez déjà joué !";
-        return;
-      }
-      spinAngle = Math.random() * 3000 + 2000;
-      rotateWheel();
-    });
-
+function rotateWheel() {
+  spinAngle *= 0.97;
+  if (spinAngle > 0.2) {
+    startAngle += (spinAngle * Math.PI) / 180;
     drawRouletteWheel();
-  </script>
+    spinTimeout = requestAnimationFrame(rotateWheel);
+  } else {
+    cancelAnimationFrame(spinTimeout);
+
+    // 🎯 Calcul exact pour correspondre à la flèche
+    const pointerAngle = -Math.PI / 2;
+    let totalAngle = (startAngle + pointerAngle) % (2 * Math.PI);
+    if (totalAngle < 0) totalAngle += 2 * Math.PI;
+
+    const index = Math.floor((rewards.length - (totalAngle / arc)) % rewards.length);
+    result.innerText = `🎉 Félicitations ! Vous avez gagné : ${rewards[index]}`;
+
+    localStorage.setItem(PLAY_KEY, "true");
+    spinBtn.disabled = true;
+    spinBtn.innerText = "Vous avez déjà joué 🎉";
+  }
+}
+
+spinBtn.addEventListener("click", () => {
+  if (localStorage.getItem(PLAY_KEY) === "true") {
+    result.innerText = "⚠️ Vous avez déjà joué !";
+    return;
+  }
+  spinAngle = Math.random() * 3000 + 2000;
+  rotateWheel();
+});
+
+drawRouletteWheel();
+</script>
 </body>
 </html>
