@@ -46,43 +46,42 @@ const rewards = [
   "🍗 Nems Poulet",
   "🍣 Sushis Saumon"
 ];
-
 const colors = ["#ff5656","#111","#ff5656","#111","#ff5656","#111"];
-let startAngle = 0;
 const arc = (2 * Math.PI) / rewards.length;
+let startAngle = 0;
 
 function drawWheel() {
   ctx.clearRect(0,0,350,350);
-  ctx.strokeStyle = "white"; ctx.lineWidth = 2; ctx.font="bold 14px Arial";
+  ctx.strokeStyle="white"; ctx.lineWidth=2; ctx.font="bold 14px Arial";
   for(let i=0;i<rewards.length;i++){
-    const angle = startAngle + i*arc;
-    ctx.fillStyle = colors[i];
+    const angle=startAngle+i*arc;
+    ctx.fillStyle=colors[i];
     ctx.beginPath();
     ctx.arc(175,175,175,angle,angle+arc,false);
     ctx.arc(175,175,0,angle+arc,angle,true);
     ctx.fill();
     ctx.save();
     ctx.fillStyle="#fff";
-    ctx.translate(175 + Math.cos(angle+arc/2)*110, 175+Math.sin(angle+arc/2)*110);
+    ctx.translate(175 + Math.cos(angle+arc/2)*110, 175 + Math.sin(angle+arc/2)*110);
     ctx.rotate(angle+arc/2);
     ctx.textAlign="center";
-    rewards[i].split("\n").forEach((line,idx)=> ctx.fillText(line,0,idx*16));
+    rewards[i].split("\n").forEach((line,idx)=>ctx.fillText(line,0,idx*16));
     ctx.restore();
   }
 }
 
-function spinWheel(){
-  // 1️⃣ choisir le cadeau gagnant
-  const rewardIndex = Math.floor(Math.random()*rewards.length);
+function spinWheel() {
+  // 1️⃣ Choisir un angle aléatoire correspondant à un segment
+  const randomIndex = Math.floor(Math.random() * rewards.length);
 
-  // 2️⃣ calculer l'angle cible exact pour que la flèche pointe sur ce segment
-  const fullTurns = 6;
-  const targetAngle = fullTurns*2*Math.PI + rewardIndex*arc - arc/2 - Math.PI/2;
+  // 2️⃣ Calculer l'angle final pour que la flèche tombe sur ce segment
+  const fullTurns = 6; 
+  const targetAngle = fullTurns*2*Math.PI + randomIndex*arc + arc/2 - Math.PI/2;
 
   const initialAngle = startAngle;
-  let frame = 0; const totalFrames = 180;
+  let frame=0; const totalFrames=180;
 
-  function animate(){
+  function animate() {
     frame++;
     const t = frame/totalFrames;
     const easeOut = 1 - Math.pow(1-t,3);
@@ -90,10 +89,10 @@ function spinWheel(){
     drawWheel();
     if(frame<totalFrames) requestAnimationFrame(animate);
     else{
-      startAngle = targetAngle%(2*Math.PI);
+      startAngle = targetAngle % (2*Math.PI);
       drawWheel();
-      // ✅ afficher exactement le cadeau choisi
-      result.innerText = `🎉 Félicitations ! Vous avez gagné : ${rewards[rewardIndex]}`;
+      // ✅ afficher exactement le segment pointé
+      result.innerText = `🎉 Félicitations ! Vous avez gagné : ${rewards[randomIndex]}`;
       spinBtn.disabled=true;
       spinBtn.innerText="Vous avez déjà joué 🎉";
     }
