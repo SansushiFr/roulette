@@ -65,7 +65,7 @@ const colors = ["#ff5656","#111","#ff5656","#111","#ff5656","#111"];
 let startAngle = 0;
 const arc = (2 * Math.PI) / rewards.length;
 
-const PLAY_KEY = "wheelPlayed_sansushi_v5";
+const PLAY_KEY = "wheelPlayed_sansushi_v6";
 if (localStorage.getItem(PLAY_KEY) === "true") {
   spinBtn.disabled = true;
   spinBtn.innerText = "Vous avez déjà joué 🎉";
@@ -100,27 +100,26 @@ function drawRouletteWheel() {
   }
 }
 
-// Fonction de rotation avec décélération progressive et arrêt exact sur le segment
 function spinWheel() {
   const rewardIndex = Math.floor(Math.random() * rewards.length);
-  const fullTurns = 5; // nombre de tours complets
+  const fullTurns = 6; // tours complets pour un effet plus long
   const targetAngle = fullTurns * 2 * Math.PI + rewardIndex * arc + arc / 2;
 
-  const start = startAngle;
-  const frames = 120;
   let frame = 0;
+  const totalFrames = 180; // + de frames pour plus de fluidité
+  const initialAngle = startAngle;
 
   function animate() {
     frame++;
-    const t = frame / frames;
-    const easeOut = 1 - Math.pow(1 - t, 3); // cubic ease out
-    startAngle = start + (targetAngle - start) * easeOut;
+    const t = frame / totalFrames;
+    const easeOut = 1 - Math.pow(1 - t, 3); // cubic easing
+    startAngle = initialAngle + (targetAngle - initialAngle) * easeOut;
     drawRouletteWheel();
 
-    if (frame < frames) {
+    if (frame < totalFrames) {
       requestAnimationFrame(animate);
     } else {
-      startAngle = targetAngle; // ⚡ forcer la position finale exacte
+      startAngle = targetAngle % (2 * Math.PI); // ⚡ forcer exact
       drawRouletteWheel();
       result.innerText = `🎉 Félicitations ! Vous avez gagné : ${rewards[rewardIndex]}`;
       localStorage.setItem(PLAY_KEY, "true");
