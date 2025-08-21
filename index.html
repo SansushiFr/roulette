@@ -112,11 +112,13 @@ function rotateWheel() {
     cancelAnimationFrame(spinTimeout);
 
     // 🎯 Calcul exact pour correspondre à la flèche
-    const pointerAngle = -Math.PI / 2;
+    const pointerAngle = -Math.PI / 2; // flèche en haut
     let totalAngle = (startAngle + pointerAngle) % (2 * Math.PI);
     if (totalAngle < 0) totalAngle += 2 * Math.PI;
 
-    const index = Math.floor((rewards.length - (totalAngle / arc)) % rewards.length);
+    // Calcul de l'index correct
+    const index = Math.floor(rewards.length - (totalAngle / arc)) % rewards.length;
+
     result.innerText = `🎉 Félicitations ! Vous avez gagné : ${rewards[index]}`;
 
     localStorage.setItem(PLAY_KEY, "true");
@@ -130,7 +132,7 @@ spinBtn.addEventListener("click", () => {
     result.innerText = "⚠️ Vous avez déjà joué !";
     return;
   }
-  spinAngle = Math.random() * 3000 + 2000;
+  spinAngle = Math.random() * 3000 + 2000; // vitesse aléatoire
   rotateWheel();
 });
 
