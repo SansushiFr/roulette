@@ -116,10 +116,11 @@ function rotateWheel() {
     let totalAngle = (startAngle + pointerAngle) % (2 * Math.PI);
     if (totalAngle < 0) totalAngle += 2 * Math.PI;
 
-    // Calcul de l'index correct
+    // Calcul correct de l'index
     const index = Math.floor(rewards.length - (totalAngle / arc)) % rewards.length;
+    const rewardIndex = (index + rewards.length) % rewards.length; // garantie positif
 
-    result.innerText = `🎉 Félicitations ! Vous avez gagné : ${rewards[index]}`;
+    result.innerText = `🎉 Félicitations ! Vous avez gagné : ${rewards[rewardIndex]}`;
 
     localStorage.setItem(PLAY_KEY, "true");
     spinBtn.disabled = true;
