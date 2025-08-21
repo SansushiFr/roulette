@@ -71,30 +71,35 @@ function drawWheel() {
 }
 
 function spinWheel() {
-  // 1️⃣ Choisir un angle aléatoire correspondant à un segment
-  const randomIndex = Math.floor(Math.random() * rewards.length);
-
-  // 2️⃣ Calculer l'angle final pour que la flèche tombe sur ce segment
   const fullTurns = 6; 
-  const targetAngle = fullTurns*2*Math.PI + randomIndex*arc + arc/2 - Math.PI/2;
+  const randomAngle = Math.random() * 2 * Math.PI; // angle final aléatoire
+  const targetAngle = fullTurns * 2 * Math.PI + randomAngle;
 
   const initialAngle = startAngle;
-  let frame=0; const totalFrames=180;
+  let frame = 0; 
+  const totalFrames = 180;
 
   function animate() {
     frame++;
-    const t = frame/totalFrames;
-    const easeOut = 1 - Math.pow(1-t,3);
-    startAngle = initialAngle + (targetAngle-initialAngle)*easeOut;
+    const t = frame / totalFrames;
+    const easeOut = 1 - Math.pow(1 - t, 3);
+    startAngle = initialAngle + (targetAngle - initialAngle) * easeOut;
     drawWheel();
-    if(frame<totalFrames) requestAnimationFrame(animate);
-    else{
-      startAngle = targetAngle % (2*Math.PI);
+
+    if (frame < totalFrames) {
+      requestAnimationFrame(animate);
+    } else {
+      // Normaliser l’angle et compenser la flèche en haut
+      const finalAngle = (startAngle + Math.PI/2) % (2 * Math.PI);
+
+      // Calcul de l’index exact du segment
+      let index = Math.floor((rewards.length - (finalAngle / arc)) % rewards.length);
+      if (index < 0) index += rewards.length; // sécurité
+
       drawWheel();
-      // ✅ afficher exactement le segment pointé
-      result.innerText = `🎉 Félicitations ! Vous avez gagné : ${rewards[randomIndex]}`;
-      spinBtn.disabled=true;
-      spinBtn.innerText="Vous avez déjà joué 🎉";
+      result.innerText = `🎉 Félicitations ! Vous avez gagné : ${rewards[index]}`;
+      spinBtn.disabled = true;
+      spinBtn.innerText = "Vous avez déjà joué 🎉";
     }
   }
   animate();
