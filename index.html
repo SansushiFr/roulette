@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sansushi France 🍣 - Roulette</title>
 <style>
 body {
@@ -65,7 +65,7 @@ const colors = ["#ff5656","#111","#ff5656","#111","#ff5656","#111"];
 let startAngle = 0;
 const arc = (2 * Math.PI) / rewards.length;
 
-const PLAY_KEY = "wheelPlayed_sansushi_v6";
+const PLAY_KEY = "wheelPlayed_sansushi_final";
 if (localStorage.getItem(PLAY_KEY) === "true") {
   spinBtn.disabled = true;
   spinBtn.innerText = "Vous avez déjà joué 🎉";
@@ -102,24 +102,24 @@ function drawRouletteWheel() {
 
 function spinWheel() {
   const rewardIndex = Math.floor(Math.random() * rewards.length);
-  const fullTurns = 6; // tours complets pour un effet plus long
-  const targetAngle = fullTurns * 2 * Math.PI + rewardIndex * arc + arc / 2;
+  const fullTurns = 6; // tours complets
+  const targetAngle = fullTurns * 2 * Math.PI + rewardIndex * arc - arc/2 - Math.PI/2;
 
-  let frame = 0;
-  const totalFrames = 180; // + de frames pour plus de fluidité
   const initialAngle = startAngle;
+  let frame = 0;
+  const totalFrames = 180;
 
   function animate() {
     frame++;
     const t = frame / totalFrames;
-    const easeOut = 1 - Math.pow(1 - t, 3); // cubic easing
+    const easeOut = 1 - Math.pow(1 - t, 3); // easing cubic
     startAngle = initialAngle + (targetAngle - initialAngle) * easeOut;
     drawRouletteWheel();
 
     if (frame < totalFrames) {
       requestAnimationFrame(animate);
     } else {
-      startAngle = targetAngle % (2 * Math.PI); // ⚡ forcer exact
+      startAngle = targetAngle % (2*Math.PI); // ⚡ forcer l'alignement exact
       drawRouletteWheel();
       result.innerText = `🎉 Félicitations ! Vous avez gagné : ${rewards[rewardIndex]}`;
       localStorage.setItem(PLAY_KEY, "true");
